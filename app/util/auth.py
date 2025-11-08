@@ -8,11 +8,11 @@ import os
 
 SECRET_KEY = os.environ.get('SECRET_KEY') or 'super secret key'
 
-def encode_token(mechanic_id):
+def encode_token(user_id):
     payload = {
         'exp': datetime.now(timezone.utc) + timedelta(days=0, hours=1), 
         'iat': datetime.now(timezone.utc),
-        'sub': str(mechanic_id)
+        'sub': str(user_id)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
     return token
@@ -31,7 +31,7 @@ def token_required(f):
         
         try:
             data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            request.mechanic_id = int(data['sub'])   # type: ignore
+            request.user_id = int(data['sub'])   # type: ignore
             
         except jose.exceptions.ExpiredSignatureError:
             return jsonify({'message': 'token is expired'}), 403

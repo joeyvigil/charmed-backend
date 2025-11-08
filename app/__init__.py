@@ -1,13 +1,11 @@
 from flask import Flask
-from app.blueprints import inventory
 from .models import db
 from .extensions import ma, limiter, cache
-from .blueprints.customers import customers_bp
-from .blueprints.mechanics import mechanics_bp
-from .blueprints.service_mechanics import service_mechanics_bp
-from .blueprints.service_tickets import service_tickets_bp
-from .blueprints.inventory import inventory_bp
-from .blueprints.ticket_inventory import ticket_inventory_bp
+from .blueprints.users import users_bp
+from .blueprints.matches import matches_bp
+from .blueprints.messages import messages_bp
+
+
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 
@@ -35,13 +33,12 @@ def create_app(config_name):
     cache.init_app(app)
     
     #Register blueprints 
-    app.register_blueprint(customers_bp, url_prefix='/customers')
-    app.register_blueprint(mechanics_bp, url_prefix='/mechanics')
-    app.register_blueprint(service_mechanics_bp, url_prefix='/service_mechanics')
-    app.register_blueprint(service_tickets_bp, url_prefix='/service_tickets')
-    app.register_blueprint(inventory_bp, url_prefix='/inventory')
-    app.register_blueprint(ticket_inventory_bp, url_prefix='/ticket_inventory')
-    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL) #Registering our swagger blueprint
+    app.register_blueprint(users_bp, url_prefix='/users')
+    app.register_blueprint(matches_bp, url_prefix='/matches')
+    app.register_blueprint(messages_bp, url_prefix='/messages')
     
-    
+    #Registering our swagger blueprint
+    # app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL) 
+
+
     return app
