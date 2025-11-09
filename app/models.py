@@ -25,7 +25,7 @@ class Users(Base):
     in_game_name: Mapped[str] = mapped_column(Text)
     tagline: Mapped[str] = mapped_column(Text)
     bio: Mapped[str] = mapped_column(Text)
-    picture: Mapped[bytes] = mapped_column(LargeBinary)
+    # picture: Mapped[bytes] = mapped_column(LargeBinary, nullable=True, default=None)
     city: Mapped[str] = mapped_column(Text)
     state: Mapped[str] = mapped_column(Text)
     country: Mapped[str] = mapped_column(Text)
