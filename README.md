@@ -247,3 +247,5 @@ authorization: Bearer <token>
     "content": "Hello, how are you?"
 }
 ```
+**request:**
+```json
