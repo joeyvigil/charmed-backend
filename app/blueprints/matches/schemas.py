@@ -5,6 +5,7 @@ from app.models import Matches
 class MatchSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Matches
+        # load_instance = True
 
 match_schema = MatchSchema() 
 matches_schema = MatchSchema(many=True) 

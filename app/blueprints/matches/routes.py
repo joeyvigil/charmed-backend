@@ -20,7 +20,9 @@ def create_match():
         new_match = Matches(**data) # type: ignore
         db.session.add(new_match)
         db.session.commit()
-        return match_schema.jsonify(new_match), 200
+        print(new_match.id)
+        return match_schema.jsonify(new_match.id), 200
+        # return jsonify({"id": match.id, "user1_id": match.user1_id, "user2_id": match.user2_id, "status": match.status, "created_at": match.created_at}), 200
     except ValidationError as e:
         return jsonify({"ValidationError": e.messages}), 400
     except Exception as e:
