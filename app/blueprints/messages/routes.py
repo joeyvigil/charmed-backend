@@ -14,12 +14,12 @@ from app.util.auth import encode_token, token_required
 @messages_bp.route('', methods=['POST']) 
 def create_message():
     try:
-        data = message_schema.load(request.json) # type: ignore
-        data['password'] = generate_password_hash(data['password']) #encrypts password
-        new_message = Messages(**data) 
+        # data = message_schema.load(request.json) # type: ignore
+        data = request.json
+        new_message = Messages(**data) # type: ignore
         db.session.add(new_message)
         db.session.commit()
-        return jsonify(message_schema.dump(new_message)), 200
+        return message_schema.jsonify(new_message), 200
     except ValidationError as e:
         return jsonify({"ValidationError": e.messages}), 400
     except Exception as e:
@@ -53,7 +53,7 @@ def read_message(message_id):
 # Assignment
 # DELETE '/<int:id'>: Deletes a specific Message based on the id passed in through the url.
 @messages_bp.route('<int:message_id>', methods=['DELETE'])
-@token_required
+# @token_required
 def delete_message(message_id):
     try:
         message = db.session.get(Messages, message_id)
@@ -68,16 +68,16 @@ def delete_message(message_id):
 # Assignment
 # PUT '/<int:id>':  Updates a specific Message based on the id passed in through the url.
 @messages_bp.route('<int:message_id>', methods=['PUT'])
-@token_required
+# @token_required
 def update_message(message_id):
     try:
         message = db.session.get(Messages, message_id) 
         if not message: 
             return jsonify({"message": "message not found"}), 404  
         
-        message_data = message_schema.load(request.json)  # type: ignore
-
-        for key, value in message_data.items():
+        # message_data = message_schema.load(request.json)  # type: ignore
+        message_data = request.json 
+        for key, value in message_data.items():   # type: ignore
             if value: #blank fields will not be updated
                 if key !="password":
                     # print(f"message {message} key {key} value {value}")

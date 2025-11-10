@@ -15,12 +15,12 @@ from app.util.auth import encode_token, token_required
 @matches_bp.route('', methods=['POST']) 
 def create_match():
     try:
-        data = match_schema.load(request.json) # type: ignore
-        data['password'] = generate_password_hash(data['password']) #encrypts password
-        new_match = Matches(**data) 
+        # data = match_schema.load(request.json) # type: ignore
+        data = request.json
+        new_match = Matches(**data) # type: ignore
         db.session.add(new_match)
         db.session.commit()
-        return jsonify(match_schema.dump(new_match)), 200
+        return match_schema.jsonify(new_match), 200
     except ValidationError as e:
         return jsonify({"ValidationError": e.messages}), 400
     except Exception as e:
@@ -53,7 +53,7 @@ def read_match(match_id):
 # Assignment
 # DELETE '/<int:id'>: Deletes a specific Match based on the id passed in through the url.
 @matches_bp.route('<int:match_id>', methods=['DELETE'])
-@token_required
+# @token_required
 def delete_match(match_id):
     try:
         match = db.session.get(Matches, match_id)
@@ -68,7 +68,7 @@ def delete_match(match_id):
 # Assignment
 # PUT '/<int:id>':  Updates a specific match based on the id passed in through the url.
 @matches_bp.route('<int:match_id>', methods=['PUT'])
-@token_required
+# @token_required
 def update_match(match_id):
     try:
         match = db.session.get(Matches, match_id) 
