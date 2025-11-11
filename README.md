@@ -247,5 +247,13 @@ authorization: Bearer <token>
     "content": "Hello, how are you?"
 }
 ```
-**request:**
+**response:**
 ```json
+{
+    "id": 1,
+    "sender_id": 1,
+    "recipient_id": 2,
+    "content": "Hello, how are you?",
+    "timestamp": "2025-11-08T22:45:00.123456"
+}
+```
