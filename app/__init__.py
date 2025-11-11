@@ -24,7 +24,8 @@ def create_app(config_name):
 
     app = Flask(__name__) #Creating base app
     app.config.from_object(f'config.{config_name}')
-    CORS(app, origins=["https://www.charmed.lol"]) #added CORS
+    CORS(app)
+    # CORS(app, origins=["https://www.charmed.lol"]) #added CORS
 
     #initialize extensions (plugging them in)
     db.init_app(app)
