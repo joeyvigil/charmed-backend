@@ -88,10 +88,12 @@ def profile():
 
 # Assignment
 # PUT '/<int:id>':  Updates a specific User based on the id passed in through the url.
-@users_bp.route('<int:user_id>', methods=['PUT'])
-# @token_required
-def update_user(user_id):
+@users_bp.route('/update', methods=['PUT'])
+@token_required
+def update_user():
     try:
+        user_id = request.user_id # type: ignore 
+        print(f"updating user {user_id}")
         user = db.session.get(Users, user_id) 
         if not user: 
             return jsonify({"message": "user not found"}), 404  
@@ -118,10 +120,12 @@ def update_user(user_id):
 
 # Assignment
 # DELETE '/<int:id'>: Deletes a specific User based on the id passed in through the url.
-@users_bp.route('<int:user_id>', methods=['DELETE'])
-# @token_required
-def delete_user(user_id):
+@users_bp.route('/delete', methods=['DELETE'])
+@token_required
+def delete_user():
     try:
+        user_id = request.user_id # type: ignore 
+        print(f"deleting user {user_id}")
         user = db.session.get(Users, user_id)
         db.session.delete(user)
         db.session.commit()
@@ -133,10 +137,11 @@ def delete_user(user_id):
 
 
 # get matches for a user
-@users_bp.route('<int:user_id>/matches', methods=['GET'])
-# @token_required
-def get_matches(user_id):
+@users_bp.route('/matches', methods=['GET'])
+@token_required
+def get_matches():
     try:
+        user_id = request.user_id # type: ignore 
         matches = db.session.query(Matches).filter(
             (Matches.user1_id == user_id) | (Matches.user2_id == user_id)
         ).all()
@@ -154,13 +159,14 @@ def get_matches(user_id):
         return jsonify(str(e)), 400
     
 #get messages between user sender and receiver
-@users_bp.route('<int:sender_id>/receiver/<int:receiver_id>', methods=['GET'])
-# @token_required
-def get_messages(sender_id, receiver_id):
+@users_bp.route('/messages/<int:receiver_id>/page/<int:page>', methods=['GET'])
+@token_required
+def get_messages(receiver_id, page):
     try:
+        sender_id = request.user_id # type: ignore 
         messages = db.session.query(Messages).filter(
             (Messages.sender_id == sender_id) & (Messages.receiver_id == receiver_id) | (Messages.receiver_id == sender_id) & (Messages.sender_id == receiver_id)
-        ).all()
+        ).order_by(Messages.created_at.desc()).limit(20).offset((page-1)*20).all()
         messages_formated = [{
             "id": message.id,
             "sender_id": message.sender_id,
