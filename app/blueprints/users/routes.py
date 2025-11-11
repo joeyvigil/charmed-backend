@@ -1,5 +1,8 @@
 from app.blueprints.users import users_bp
 from .schemas import user_schema, users_schema, login_schema
+from app.models import Users, Messages, Matches, db
+from app.blueprints.matches.schemas import matches_schema, match_schema
+from app.blueprints.messages.schemas import messages_schema, message_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from app.models import Users, Messages, Matches, db
@@ -86,7 +89,7 @@ def profile():
 # Assignment
 # PUT '/<int:id>':  Updates a specific User based on the id passed in through the url.
 @users_bp.route('<int:user_id>', methods=['PUT'])
-@token_required
+# @token_required
 def update_user(user_id):
     try:
         user = db.session.get(Users, user_id) 
@@ -116,7 +119,7 @@ def update_user(user_id):
 # Assignment
 # DELETE '/<int:id'>: Deletes a specific User based on the id passed in through the url.
 @users_bp.route('<int:user_id>', methods=['DELETE'])
-@token_required
+# @token_required
 def delete_user(user_id):
     try:
         user = db.session.get(Users, user_id)
@@ -128,4 +131,46 @@ def delete_user(user_id):
     except Exception as e:
         return jsonify(str(e)), 400
 
+
+# get matches for a user
+@users_bp.route('<int:user_id>/matches', methods=['GET'])
+# @token_required
+def get_matches(user_id):
+    try:
+        matches = db.session.query(Matches).filter(
+            (Matches.user1_id == user_id) | (Matches.user2_id == user_id)
+        ).all()
+        matches_formated = [{
+            "id": match.id,
+            "user1_id": match.user1_id,
+            "user2_id": match.user2_id,
+            "status": match.status,
+            "created_at": match.created_at
+        } for match in matches]
+        return jsonify(matches_formated), 200
+    except ValidationError as e:
+        return jsonify(e.messages), 400 
+    except Exception as e:
+        return jsonify(str(e)), 400
     
+#get messages between user sender and receiver
+@users_bp.route('<int:sender_id>/receiver/<int:receiver_id>', methods=['GET'])
+# @token_required
+def get_messages(sender_id, receiver_id):
+    try:
+        messages = db.session.query(Messages).filter(
+            (Messages.sender_id == sender_id) & (Messages.receiver_id == receiver_id) | (Messages.receiver_id == sender_id) & (Messages.sender_id == receiver_id)
+        ).all()
+        messages_formated = [{
+            "id": message.id,
+            "sender_id": message.sender_id,
+            "receiver_id": message.receiver_id,
+            "content": message.content,
+            "created_at": message.created_at
+        } for message in messages]
+
+        return jsonify(messages_formated), 200
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    except Exception as e:
+        return jsonify(str(e)), 400

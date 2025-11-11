@@ -29,6 +29,8 @@ class Users(Base):
     city: Mapped[str] = mapped_column(Text)
     state: Mapped[str] = mapped_column(Text)
     country: Mapped[str] = mapped_column(Text)
+    latitude: Mapped[float] = mapped_column(db.Float)
+    longitude: Mapped[float] = mapped_column(db.Float)
     created_at: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.now)
     
     matches: Mapped[list['Matches']] = relationship('Matches', foreign_keys='Matches.user1_id', back_populates='user1')

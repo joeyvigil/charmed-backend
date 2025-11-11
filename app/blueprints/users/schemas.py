@@ -5,6 +5,7 @@ from app.models import Users
 class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Users
+        include_fk=True
 
 user_schema = UserSchema() 
 users_schema = UserSchema(many=True) 
