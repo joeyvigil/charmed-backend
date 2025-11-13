@@ -180,3 +180,66 @@ def get_messages(receiver_id, page):
         return jsonify(e.messages), 400
     except Exception as e:
         return jsonify(str(e)), 400
+    
+# search for users with criteria
+@users_bp.route('/search', methods=['GET'])
+@token_required
+def search_users():
+    try:
+        user_id = request.user_id # type: ignore
+        user = db.session.get(Users, user_id)
+        search_criteria = request.json.get("criteria", {})
+        location = request.json.get("location", {})
+        # search_criteria = request.json
+        # example criteria: {"city": "New York", "gender": "female"}
+        users = db.session.query(Users).filter_by(**search_criteria).limit(50).all()
+        # sort by distance if latitude and longitude provided
+        if "latitude" in location and "longitude" in location:
+            print("sorting by distance")
+            print("user location:", user.latitude, user.longitude)
+            lat = location["latitude"]
+            lon = location["longitude"]
+            users.sort(key=lambda user: (user.latitude - lat)**2 + (user.longitude - lon)**2)
+        return users_schema.jsonify(users), 200
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    except Exception as e:
+        return jsonify(str(e)), 400
+    
+# add match with token and user id
+@users_bp.route('/match/<int:other_user_id>', methods=['POST'])
+@token_required
+def add_match(other_user_id):
+    try:
+        user_id = request.user_id # type: ignore
+        new_match = Matches(user1_id=user_id, user2_id=other_user_id)
+        db.session.add(new_match)
+        db.session.commit()
+        return jsonify(match_schema.dump(new_match)), 201
+    except ValidationError as e:
+        return jsonify({"ValidationError": e.messages}), 400
+    except Exception as e:
+        return jsonify({"Exception": str(e)}), 400
+    
+# return my matches as users
+@users_bp.route('/my_matches', methods=['GET'])
+@token_required
+def get_my_matches():
+    try:
+        user_id = request.user_id # type: ignore
+        matches = db.session.query(Matches).filter(
+            (Matches.user1_id == user_id) | (Matches.user2_id == user_id)
+        ).all()
+        users = []
+        for match in matches:
+            if match.user1_id == user_id:
+                other_user = db.session.get(Users, match.user2_id)
+            else:
+                other_user = db.session.get(Users, match.user1_id)
+            if other_user:
+                users.append(user_schema.dump(other_user))
+        return jsonify(users), 200
+    except ValidationError as e:
+        return jsonify(e.messages), 400
+    except Exception as e:
+        return jsonify(str(e)), 400
