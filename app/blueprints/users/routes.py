@@ -207,7 +207,7 @@ def search_users():
         return jsonify(str(e)), 400
     
 # add match with token and user id
-@users_bp.route('/match/<int:other_user_id>', methods=['POST'])
+@users_bp.route('/add_match/<int:other_user_id>', methods=['POST'])
 @token_required
 def add_match(other_user_id):
     try:
@@ -221,6 +221,26 @@ def add_match(other_user_id):
     except Exception as e:
         return jsonify({"Exception": str(e)}), 400
     
+# remove match with token and user id
+@users_bp.route('/remove_match/<int:other_user_id>', methods=['POST'])
+@token_required
+def remove_match(other_user_id):
+    try:
+        user_id = request.user_id # type: ignore
+        match = db.session.query(Matches).filter(
+            (Matches.user1_id == user_id) & (Matches.user2_id == other_user_id) |
+            (Matches.user1_id == other_user_id) & (Matches.user2_id == user_id)
+        ).first()
+        if match:
+            db.session.delete(match)
+            db.session.commit()
+            return jsonify({"message": "Match removed successfully"}), 200
+        return jsonify({"message": "Match not found"}), 404
+    except ValidationError as e:
+        return jsonify({"ValidationError": e.messages}), 400
+    except Exception as e:
+        return jsonify({"Exception": str(e)}), 400
+
 # return my matches as users
 @users_bp.route('/my_matches', methods=['GET'])
 @token_required
