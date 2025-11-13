@@ -182,7 +182,7 @@ def get_messages(receiver_id, page):
         return jsonify(str(e)), 400
     
 # search for users with criteria
-@users_bp.route('/search', methods=['GET'])
+@users_bp.route('/search', methods=['POST'])
 @token_required
 def search_users():
     try:
