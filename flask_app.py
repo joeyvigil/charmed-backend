@@ -4,7 +4,7 @@ from app import create_app
 app = create_app('ProductionConfig') # 1. change to 'ProductionConfig' as needed
 
 with app.app_context():
-    db.drop_all() # 2. uncomment to reset database
+    # db.drop_all() # 2. uncomment to reset database
     db.create_all() 
 
 # app.run() # 3. remove when deploying to production server https://charmed-backend.onrender.com  http://127.0.0.1:5000
